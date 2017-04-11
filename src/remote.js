@@ -18,9 +18,8 @@ RemoteTask.run = function(taskName, info) {
   monaca.prepareSession().then(
     function() {
       var task = argv._[1];
-
-      if (task === 'build') {
-        this.build();
+      if (task === 'build' || task === 'config') {
+        this.remote(task);
       } else {
         util.fail('No such command.');
       }
@@ -29,7 +28,8 @@ RemoteTask.run = function(taskName, info) {
   );
 };
 
-RemoteTask.build = function() {
+// Perform remote operations: build / config
+RemoteTask.remote = function(task) {
 
   var params = {};
   params.platform = argv._[2];
@@ -42,12 +42,12 @@ RemoteTask.build = function() {
     }
   });
 
-  if (!params.browser && (!params.platform || !params.purpose)) {
+  if (!params.browser && task !== 'config' && (!params.platform || !params.purpose)) {
     util.fail('Missing parameters. Please write --help to see the correct usage.');
   }
 
   var report = {
-    event: 'remote-build',
+    event: 'remote-' + task,
     arg1: params.platform,
     otherArgs: JSON.stringify(params)
   };
@@ -84,7 +84,7 @@ RemoteTask.build = function() {
     .then(
       function(files) {
         lib.printSuccessMessage({action: 'upload'}, files);
-        if (!params.browser) {
+        if (!params.browser && task !== 'config') {
           error = 'Unable to build this project: ';
           return monaca.checkBuildAvailability(projectInfo.projectId, params.platform, params.purpose);
         }
@@ -93,7 +93,7 @@ RemoteTask.build = function() {
     // Checking build availabilty (if no browser).
     .then(
       function() {
-        if (argv.browser) {
+        if (argv.browser || task === "config") {
           var url = 'https://ide.monaca.mobi/project/' + projectInfo.projectId + '/' + (argv['debugger'] ? 'debugger' : 'build');
           return monaca.getSessionUrl(url)
             .then(

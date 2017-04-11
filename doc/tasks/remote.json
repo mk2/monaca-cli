@@ -44,5 +44,16 @@
       "monaca remote build android --build-type=debug --android_webview=crosswalk --android_arch=arm",
       "monaca remote build --browser"
     ]
+  },
+
+  "remote config": {
+    "order": 5,
+    "description": "open project configuration on Monaca Cloud",
+    "longDescription": [
+      "Open project configuration on Monaca Cloud"
+    ],
+    "usage": [
+      "monaca remote config"
+    ]
   }
 }
